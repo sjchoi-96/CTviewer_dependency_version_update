@@ -14,7 +14,7 @@ app.whenReady().then(() => {
     height: 900,
     minHeight: 400,
     minWidth: 300,
-    icon: join(__dirname, '../public/favicon.ico'),
+    icon: join(__dirname, '../public/neofavicon.ico'),
     titleBarStyle: 'hidden',
     titleBarOverlay: {
       color: '#f3f3f300',

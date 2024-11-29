@@ -7,7 +7,7 @@
   "files": ["dist-electron", "dist", "!node_modules/**/*"],
   "electronLanguages": ["zh-CN"],
   "win": {
-    "icon": "dist/favicon.ico",
+    "icon": "dist/neofavicon.ico",
     "target": [
       {
         "target": "nsis",
