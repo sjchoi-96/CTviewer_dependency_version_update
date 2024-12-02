@@ -20,13 +20,12 @@ declare module 'vue-router/auto-routes' {
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/[...all]': RouteRecordInfo<'/[...all]', '/:all(.*)', { all: ParamValue<true> }, { all: ParamValue<false> }>,
-    '/dashboard': RouteRecordInfo<'/dashboard', '/dashboard', Record<never, never>, Record<never, never>>,
-    '/homepage': RouteRecordInfo<'/homepage', '/homepage', Record<never, never>, Record<never, never>>,
-    '/labs': RouteRecordInfo<'/labs', '/labs', Record<never, never>, Record<never, never>>,
-    '/nested': RouteRecordInfo<'/nested', '/nested', Record<never, never>, Record<never, never>>,
-    '/nested/menu1': RouteRecordInfo<'/nested/menu1', '/nested/menu1', Record<never, never>, Record<never, never>>,
-    '/nested/menu2': RouteRecordInfo<'/nested/menu2', '/nested/menu2', Record<never, never>, Record<never, never>>,
-    '/nested/menu2/menu2-1': RouteRecordInfo<'/nested/menu2/menu2-1', '/nested/menu2/menu2-1', Record<never, never>, Record<never, never>>,
-    '/nested/menu2/menu2-2': RouteRecordInfo<'/nested/menu2/menu2-2', '/nested/menu2/menu2-2', Record<never, never>, Record<never, never>>,
+    '/createCase': RouteRecordInfo<'/createCase', '/createCase', Record<never, never>, Record<never, never>>,
+    '/detection': RouteRecordInfo<'/detection', '/detection', Record<never, never>, Record<never, never>>,
+    '/guide': RouteRecordInfo<'/guide', '/guide', Record<never, never>, Record<never, never>>,
+    '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
+    '/patientInfo': RouteRecordInfo<'/patientInfo', '/patientInfo', Record<never, never>, Record<never, never>>,
+    '/planning': RouteRecordInfo<'/planning', '/planning', Record<never, never>, Record<never, never>>,
+    '/simulation': RouteRecordInfo<'/simulation', '/simulation', Record<never, never>, Record<never, never>>,
   }
 }

@@ -2,8 +2,8 @@
 definePage({
   meta: {
     icon: 'mdi-flask',
-    title: 'Labs',
-    drawerIndex: 3,
+    title: 'Simulation',
+    drawerIndex: 2,
   },
 })
 const headers = [

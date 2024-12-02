@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 // 상태 관리: username과 password
 const userName = ref('')
@@ -9,6 +11,8 @@ const password = ref('')
 function login(): void {
   if (userName.value && password.value) {
     Notify.success(`Welcome, ${userName.value}!`)
+    // TODO: DB에서 userName과 password 일치 여부 확인하는 로직 추가
+    router.push('/patientInfo')
   } else if (!userName.value || undefined) {
     Notify.warning('Please enter your username.')
   } else if (!password.value || undefined) {

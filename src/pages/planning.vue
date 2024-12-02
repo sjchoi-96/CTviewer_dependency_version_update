@@ -1,9 +1,9 @@
 <script setup lang="ts">
 definePage({
   meta: {
-    icon: 'mdi-monitor-dashboard',
-    title: 'Dashboard',
-    drawerIndex: 1,
+    icon: 'mdi-flask',
+    title: 'Planning',
+    drawerIndex: 4,
   },
 })
 const stats = ref([
