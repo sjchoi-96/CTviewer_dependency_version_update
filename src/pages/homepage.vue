@@ -23,7 +23,8 @@ const clearInputs = () => {
   <div class="wrapper">
     <!-- 중앙에 이미지 배치 및 크기 조정 -->
     <v-img
-      src="@/assets/icons/logo_on.png"
+      src="@/assets/icons/neofavicon.svg"
+      color="primary"
       alt="Logo"
       max-width="150"
       max-height="150"

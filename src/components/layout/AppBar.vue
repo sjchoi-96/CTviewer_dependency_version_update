@@ -33,15 +33,15 @@ const toggleDark = useToggle<true, false | null>(isDark)
     <v-spacer />
     <div id="app-bar" />
     <div class="mt-7 mr-2 d-flex">
-      <v-btn
+      <!-- <v-btn
         icon
-        href="https://github.com/kingyue737/vitify-electron"
+        href="https://github.com/neo-euni/neo-plan-ui-test.git"
         size="small"
         class="ml-2"
         target="_blank"
       >
         <v-icon size="30" icon="mdi-github" />
-      </v-btn>
+      </v-btn> -->
       <v-switch
         :model-value="isDark"
         color=""

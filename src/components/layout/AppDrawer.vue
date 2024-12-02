@@ -27,12 +27,13 @@ nextTick(() => {
       <v-list>
         <v-list-item class="pa-1">
           <template #prepend>
-            <v-icon
-              icon="custom:vitify"
-              size="x-large"
-              class="drawer-header-icon"
-              color="primary"
-            />
+            <v-icon size="x-large" class="drawer-header-icon">
+              <v-img
+                src="@/assets/icons/neofavicon.svg"
+                alt="icon"
+                color="primary"
+              />
+            </v-icon>
           </template>
           <v-list-item-title
             class="text-h5 font-weight-bold"
