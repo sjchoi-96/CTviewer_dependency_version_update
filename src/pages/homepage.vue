@@ -9,6 +9,10 @@ const password = ref('')
 function login(): void {
   if (userName.value && password.value) {
     Notify.success(`Welcome, ${userName.value}!`)
+  } else if (!userName.value || undefined) {
+    Notify.warning('Please enter your username.')
+  } else if (!password.value || undefined) {
+    Notify.warning('Please enter your password.')
   }
 }
 
@@ -16,7 +20,6 @@ function login(): void {
 function clearInputs(): void {
   userName.value = ''
   password.value = ''
-  Notify.warning('Inputs cleared.')
 }
 
 // 필드 참조를 위한 ref
@@ -51,7 +54,7 @@ function focusNext(currentField: 'userNameField' | 'passwordField'): void {
         v-model="userName"
         color="primary"
         placeholder="Enter your user name"
-        label="Username"
+        label="User Name"
         class="mx-auto mt-8"
         ref="userNameField"
         @keydown.enter="focusNext('userNameField')"
