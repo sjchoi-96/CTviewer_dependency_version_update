@@ -17,7 +17,7 @@ export class MockRepository {
         caseList: [
           {
             id: 1,
-            patientId: 1,
+            patientId: 0,
             planName: 'Plan 1',
             planStatus: 'Done',
             nerveCanalPosition: 'Left',
@@ -40,7 +40,7 @@ export class MockRepository {
           },
           {
             id: 2,
-            patientId: 1,
+            patientId: 0,
             planName: 'Plan 2',
             planStatus: 'Pending',
             nerveCanalPosition: 'Left',
@@ -63,7 +63,7 @@ export class MockRepository {
           },
           {
             id: 3,
-            patientId: 1,
+            patientId: 0,
             planName: 'Plan 3',
             planStatus: 'Pending',
             nerveCanalPosition: 'Left',
@@ -86,7 +86,7 @@ export class MockRepository {
           },
           {
             id: 4,
-            patientId: 1,
+            patientId: 0,
             planName: 'Plan 4',
             planStatus: 'Pending',
             nerveCanalPosition: 'Left',
@@ -133,9 +133,12 @@ export class MockRepository {
   // 특정 환자의 case list 가져오기
   getPatientCaseList(patientId: number): Case[] | null {
     const patient = this.findPatient(patientId)
-    return patient ? patient.caseList : null
+    if (patient) {
+      // caseList를 역순으로 정렬하여 반환
+      return patient.caseList.reverse()
+    }
+    return null
   }
 }
-
 // 단일 인스턴스 생성 및 export
 export const mockRepository = new MockRepository()

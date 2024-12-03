@@ -59,6 +59,7 @@ function getCaseDetail(caseId: number, patientId: number): void {
         patientName: selectedPatient.name,
         patientGender: selectedPatient.gender,
         patientDob: selectedPatient.dob,
+        patientMemo: selectedPatient.memo,
       },
     })
   }
