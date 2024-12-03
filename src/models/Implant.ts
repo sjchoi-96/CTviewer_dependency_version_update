@@ -1,5 +1,6 @@
 interface Implant {
   id: number
+  caseId: number
   implantLocation: number
   implantType: string
   implantSize: string

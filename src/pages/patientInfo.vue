@@ -2,10 +2,15 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { MockRepository } from '@/mockDB/MockRepository'
+import type { Patient } from '@/models/Patient'
+import type { Case } from '@/models/Case'
+import PatientList from '@/components/patients/PatientList.vue' // 새로운 PatientList 컴포넌트 가져오기
+import CaseList from '@/components/patients/CaseList.vue' // 새로운 CaseList 컴포넌트 가져오기
 
 const router = useRouter()
-const patientList = ref([])
-const caseList = ref([])
+const patientList = ref<Patient[]>([]) // patientList를 ref로 정의
+const selectedCaseList = ref<Case[]>([]) // 선택된 환자의 caseList를 ref로 정의
+const isCaseListVisible = ref(false) // caseList의 가시성을 제어하는 변수
 
 definePage({
   meta: {
@@ -15,22 +20,40 @@ definePage({
   },
 })
 
-function createPatient(): void {
+function createPatientCase(): void {
   router.push('/createCase')
 }
 
-// 환자 리스트를 가져오는 함수
 function getPatientList(): void {
-  patientList = MockRepository.getPatients()
+  patientList.value = MockRepository.getPatients() // patientList에 값을 할당
   console.log(patientList.value)
 }
 
 function getPatientCaseList(patientId: number): void {
-  caseList = MockRepository.getPatientCaseList(patientId)
-  console.log(caseList.value)
+  const caseList = MockRepository.getPatientCaseList(patientId)
+  selectedCaseList.value = caseList || [] // 선택된 caseList를 업데이트
+  isCaseListVisible.value = true // caseList를 보이도록 설정
+  console.log(selectedCaseList.value)
 }
 
-// 컴포넌트가 마운트될 때 환자 리스트를 가져옴
+function getCaseDetail(caseId: number, patientId: number): void {
+  const selectedPatient = patientList.value.find(
+    (patient) => patient.id === patientId,
+  )
+
+  if (selectedPatient) {
+    router.push({
+      path: '/createCase',
+      query: {
+        patientId: selectedPatient.id,
+        patientName: selectedPatient.name,
+        patientGender: selectedPatient.gender,
+        patientDob: selectedPatient.dob,
+      },
+    })
+  }
+}
+
 onMounted(() => {
   getPatientList()
 })
@@ -38,47 +61,18 @@ onMounted(() => {
 
 <template>
   <v-container fluid>
-    <v-card-text>
-      <v-card-title>
-        <span>Patient List</span>
-        <v-btn class="mr-2 new-patient-btn" small @click="createPatient"
-          >New Patient</v-btn
-        >
-      </v-card-title>
-
-      <v-list lines="two">
-        <v-list-item
-          v-for="patient in patientList"
-          :key="patient.id"
-          @click="getPatientCaseList(patient.id)"
-        >
-          <v-icon class="patient-icon">mdi-account</v-icon>
-          <v-list-item-content>
-            <v-list-item-title> {{ patient.name }}</v-list-item-title>
-            <v-list-item-subtitle>
-              ID: {{ patient.id }}, Gender: {{ patient.gender }}, DOB:
-              {{ patient.dob }}
-              <span v-if="patient.caseList.length > 0"
-                >, Cases: {{ patient.caseList.length }}</span
-              >
-              <span v-else>, No cases available</span>
-            </v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-card-text>
+    <v-row>
+      <PatientList
+        :patientList="patientList"
+        :createPatientCase="createPatientCase"
+        :getPatientCaseList="getPatientCaseList"
+      />
+      <CaseList
+        :selectedCaseList="selectedCaseList"
+        :isCaseListVisible="isCaseListVisible"
+        :createPatientCase="createPatientCase"
+        :getCaseDetail="getCaseDetail"
+      />
+    </v-row>
   </v-container>
 </template>
-
-<style scoped>
-.new-patient-btn {
-  padding: 4px 8px;
-  font-size: 13px;
-  margin-left: 150px;
-  border: solid 1px rgb(var(--v-theme-primary));
-}
-
-.patient-icon {
-  color: rgb(var(--v-theme-primary));
-}
-</style>
