@@ -55,22 +55,22 @@ function focusNext(currentField: 'userNameField' | 'passwordField'): void {
     <!-- 로그인 창 -->
     <v-responsive max-width="300" class="mx-auto">
       <v-text-field
+        ref="userNameField"
         v-model="userName"
         color="primary"
         placeholder="Enter your user name"
         label="User Name"
         class="mx-auto mt-8"
-        ref="userNameField"
         @keydown.enter="focusNext('userNameField')"
       />
       <v-text-field
+        ref="passwordField"
         v-model="password"
         color="primary"
         placeholder="Enter your password"
         label="Password"
         type="password"
         class="mx-auto mt-4"
-        ref="passwordField"
         @keydown.enter="focusNext('passwordField')"
       />
     </v-responsive>
