@@ -1,9 +1,9 @@
 <template>
-  <v-col v-if="isCaseListVisible" cols="6">
+  <v-col v-if="isCaseListVisible && !isNewPatientVisible" cols="6">
     <v-card-text>
       <v-card-title class="d-flex justify-space-between">
         <span>Case List</span>
-        <v-btn class="new-patient-btn" small @click="createPatientCase"
+        <v-btn class="new-patient-btn" small @click="createCase"
           >New Case</v-btn
         >
       </v-card-title>
@@ -34,7 +34,8 @@ import type { Case } from '@/models/Case'
 const props = defineProps<{
   selectedCaseList: Case[]
   isCaseListVisible: boolean
-  createPatientCase: () => void
+  isNewPatientVisible: boolean
+  createCase: () => void
   getCaseDetail: (caseId: number, patientId: number) => void
 }>()
 </script>

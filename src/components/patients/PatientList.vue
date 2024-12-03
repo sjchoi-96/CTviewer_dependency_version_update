@@ -3,7 +3,7 @@
     <v-card-text>
       <v-card-title class="d-flex justify-space-between">
         <span>Patient List</span>
-        <v-btn class="new-patient-btn" small @click="createPatientCase"
+        <v-btn class="new-patient-btn" small @click="createPatient"
           >New Patient</v-btn
         >
       </v-card-title>
@@ -12,7 +12,7 @@
         <v-list-item
           v-for="patient in patientList"
           :key="patient.id"
-          @click="getPatientCaseList(patient.id)"
+          @click="getPatientWithCaseList(patient.id)"
         >
           <v-icon class="patient-icon">mdi-account</v-icon>
           <v-list-item-title> {{ patient.name }}</v-list-item-title>
@@ -36,8 +36,8 @@ import type { Patient } from '@/models/Patient'
 
 const props = defineProps<{
   patientList: Patient[]
-  createPatientCase: () => void
-  getPatientCaseList: (patientId: number) => void
+  createPatient: () => void
+  getPatientWithCaseList: (patientId: number) => void
 }>()
 </script>
 

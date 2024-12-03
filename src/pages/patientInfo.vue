@@ -6,11 +6,12 @@ import type { Patient } from '@/models/Patient'
 import type { Case } from '@/models/Case'
 import PatientList from '@/components/patients/PatientList.vue' // 새로운 PatientList 컴포넌트 가져오기
 import CaseList from '@/components/patients/CaseList.vue' // 새로운 CaseList 컴포넌트 가져오기
-
+import NewPatient from '@/components/patients/NewPatient.vue' // 새로운 NewPatient 컴포넌트 가져오기
 const router = useRouter()
 const patientList = ref<Patient[]>([]) // patientList를 ref로 정의
 const selectedCaseList = ref<Case[]>([]) // 선택된 환자의 caseList를 ref로 정의
 const isCaseListVisible = ref(false) // caseList의 가시성을 제어하는 변수
+const isNewPatientVisible = ref(false)
 
 definePage({
   meta: {
@@ -20,8 +21,17 @@ definePage({
   },
 })
 
-function createPatientCase(): void {
+function createCase(): void {
   router.push('/createCase')
+}
+
+function createPatient(): void {
+  isNewPatientVisible.value = true
+}
+
+function addPatient(patient: Patient) {
+  patientList.value.push(patient)
+  closeNewPatient()
 }
 
 function getPatientList(): void {
@@ -29,7 +39,7 @@ function getPatientList(): void {
   console.log(patientList.value)
 }
 
-function getPatientCaseList(patientId: number): void {
+function getPatientWithCaseList(patientId: number): void {
   const caseList = MockRepository.getPatientCaseList(patientId)
   selectedCaseList.value = caseList || [] // 선택된 caseList를 업데이트
   isCaseListVisible.value = true // caseList를 보이도록 설정
@@ -53,6 +63,9 @@ function getCaseDetail(caseId: number, patientId: number): void {
     })
   }
 }
+function closeNewPatient() {
+  isNewPatientVisible.value = false // NewPatient 컴포넌트를 숨김
+}
 
 onMounted(() => {
   getPatientList()
@@ -64,14 +77,21 @@ onMounted(() => {
     <v-row>
       <PatientList
         :patientList="patientList"
-        :createPatientCase="createPatientCase"
-        :getPatientCaseList="getPatientCaseList"
+        :createPatient="createPatient"
+        :getPatientWithCaseList="getPatientWithCaseList"
+      />
+      <NewPatient
+        v-if="isNewPatientVisible"
+        :addPatient="addPatient"
+        :closeNewPatient="closeNewPatient"
+        :patientList="patientList"
       />
       <CaseList
         :selectedCaseList="selectedCaseList"
         :isCaseListVisible="isCaseListVisible"
-        :createPatientCase="createPatientCase"
+        :createCase="createCase"
         :getCaseDetail="getCaseDetail"
+        :isNewPatientVisible="isNewPatientVisible"
       />
     </v-row>
   </v-container>

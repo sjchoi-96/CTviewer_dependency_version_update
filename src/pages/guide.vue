@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePage({
   meta: {
-    icon: 'mdi-flask',
+    icon: 'mdi-check-circle',
     title: 'Guide',
     drawerIndex: 5,
   },
