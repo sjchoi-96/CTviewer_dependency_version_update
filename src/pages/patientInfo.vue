@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { MockRepository } from '@/mockDB/MockRepository'
+import { mockRepository } from '@/mockDB/MockRepository'
 import type { Patient } from '@/models/Patient'
 import type { Case } from '@/models/Case'
 import PatientList from '@/components/patients/PatientList.vue' // 새로운 PatientList 컴포넌트 가져오기
@@ -35,12 +35,12 @@ function addPatient(patient: Patient) {
 }
 
 function getPatientList(): void {
-  patientList.value = MockRepository.getPatients() // patientList에 값을 할당
+  patientList.value = mockRepository.getPatients() // patientList에 값을 할당
   console.log(patientList.value)
 }
 
 function getPatientWithCaseList(patientId: number): void {
-  const caseList = MockRepository.getPatientCaseList(patientId)
+  const caseList = mockRepository.getPatientCaseList(patientId)
   selectedCaseList.value = caseList || [] // 선택된 caseList를 업데이트
   isCaseListVisible.value = true // caseList를 보이도록 설정
   console.log(selectedCaseList.value)

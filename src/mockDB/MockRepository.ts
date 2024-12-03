@@ -1,18 +1,19 @@
 // src/services/MockServer.ts
-import type { Patient } from '@/models/Patient' // Patient 클래스 가져오기
-import type { Case } from '@/models/Case' // Case 클래스 가져오기
+import type { Patient } from '@/models/Patient' // Patient 인터페이스 가져오기
+import type { Case } from '@/models/Case' // Case 인터페이스 가져오기
 
-export class MockServer {
+export class MockRepository {
   private patients: Patient[]
 
   constructor() {
     // 초기 환자 데이터 설정
     this.patients = [
       {
-        id: 1,
+        id: 0,
         name: 'John Doe',
         gender: 'Male',
         dob: '1990-01-01',
+        memo: '',
         caseList: [
           {
             id: 1,
@@ -109,10 +110,11 @@ export class MockServer {
         ],
       },
       {
-        id: 2,
+        id: 1,
         name: 'Jane Smith',
         gender: 'Female',
         dob: '1992-02-02',
+        memo: '',
         caseList: [],
       },
     ]
@@ -135,6 +137,5 @@ export class MockServer {
   }
 }
 
-const MockRepository = new MockServer()
-
-export { MockRepository }
+// 단일 인스턴스 생성 및 export
+export const mockRepository = new MockRepository()

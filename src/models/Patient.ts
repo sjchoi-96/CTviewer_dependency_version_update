@@ -5,6 +5,7 @@ interface Patient {
   name: string
   gender: string
   dob: string
+  memo: string
   caseList: Case[]
 }
 
