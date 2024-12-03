@@ -3,7 +3,7 @@
     <v-card-text>
       <v-card-title class="d-flex justify-space-between">
         <span>Case List</span>
-        <v-btn class="new-patient-btn" small @click="createCase"
+        <v-btn class="new-patient-btn" small @click="createCase(patientId.id)"
           >New Case</v-btn
         >
       </v-card-title>
@@ -35,8 +35,9 @@ const props = defineProps<{
   selectedCaseList: Case[]
   isCaseListVisible: boolean
   isNewPatientVisible: boolean
-  createCase: () => void
+  createCase: (patientId: number) => void
   getCaseDetail: (caseId: number, patientId: number) => void
+  patientId: { id: number }
 }>()
 </script>
 

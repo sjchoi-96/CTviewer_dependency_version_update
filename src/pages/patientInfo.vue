@@ -12,6 +12,7 @@ const patientList = ref<Patient[]>([]) // patientList를 ref로 정의
 const selectedCaseList = ref<Case[]>([]) // 선택된 환자의 caseList를 ref로 정의
 const isCaseListVisible = ref(false) // caseList의 가시성을 제어하는 변수
 const isNewPatientVisible = ref(false)
+const selectedPatientId = ref({ id: 0 })
 
 definePage({
   meta: {
@@ -21,8 +22,11 @@ definePage({
   },
 })
 
-function createCase(): void {
-  router.push('/createCase')
+function createCase(patientId: number): void {
+  const selectedPatient = findPatientById(patientId)
+  if (selectedPatient) {
+    sendPatientInfoToCreateCase(selectedPatient)
+  }
 }
 
 function createPatient(): void {
@@ -40,17 +44,24 @@ function getPatientList(): void {
 }
 
 function getPatientWithCaseList(patientId: number): void {
-  const caseList = mockRepository.getPatientCaseList(patientId)
+  selectedPatientId.value = { id: patientId }
+  const caseList = findCaseListByPatientId(patientId)
   selectedCaseList.value = caseList || [] // 선택된 caseList를 업데이트
   isCaseListVisible.value = true // caseList를 보이도록 설정
   console.log(selectedCaseList.value)
 }
 
-function getCaseDetail(caseId: number, patientId: number): void {
-  const selectedPatient = patientList.value.find(
-    (patient) => patient.id === patientId,
-  )
+function findCaseListByPatientId(patientId: number): Case[] {
+  const caseList = mockRepository.getPatientCaseList(patientId)
+  return caseList || []
+}
 
+function findPatientById(patientId: number): Patient | null {
+  const selectedPatient = mockRepository.getPatient(patientId)
+  return selectedPatient
+}
+
+function sendPatientInfoToCreateCase(selectedPatient: Patient): void {
   if (selectedPatient) {
     router.push({
       path: '/createCase',
@@ -62,6 +73,15 @@ function getCaseDetail(caseId: number, patientId: number): void {
         patientMemo: selectedPatient.memo,
       },
     })
+  } else {
+    console.error('선택된 환자가 없습니다.')
+  }
+}
+
+function getCaseDetail(caseId: number, patientId: number): void {
+  const selectedPatient = findPatientById(patientId)
+  if (selectedPatient) {
+    sendPatientInfoToCreateCase(selectedPatient)
   }
 }
 function closeNewPatient() {
@@ -93,6 +113,7 @@ onMounted(() => {
         :createCase="createCase"
         :getCaseDetail="getCaseDetail"
         :isNewPatientVisible="isNewPatientVisible"
+        :patientId="selectedPatientId"
       />
     </v-row>
   </v-container>

@@ -139,6 +139,11 @@ export class MockRepository {
     }
     return null
   }
+
+  // 특정 환자 가져오기
+  getPatient(patientId: number): Patient | null {
+    return this.findPatient(patientId) || null
+  }
 }
 // 단일 인스턴스 생성 및 export
 export const mockRepository = new MockRepository()

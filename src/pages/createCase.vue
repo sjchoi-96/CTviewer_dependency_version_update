@@ -20,30 +20,49 @@ const patientInfo = ref({
         <v-card-title>New Case</v-card-title>
         <v-card>
           <!-- Name, ID, Gender, DOB 영역 -->
-          <v-col cols="6">
-            <v-card-text>{{ patientInfo.name }}</v-card-text>
-            <v-card-text>{{ patientInfo.id }}</v-card-text>
-            <v-card-text>{{ patientInfo.gender }}</v-card-text>
-            <v-card-text>{{ patientInfo.dob }}</v-card-text>
-          </v-col>
-
-          <!-- Memo 영역 -->
-          <v-col cols="6">
-            <v-text>{{ patientInfo.memo }}</v-text>
-          </v-col>
-        </v-card>
-
-        <!-- 구강 이미지 케이스 세팅 -->
-        <v-card-title>Case Setting</v-card-title>
-        <v-card>
-          <v-col justify="center">
-            <v-img
-              src="@/assets/images/mouth-structure.png"
-              alt="Mouth Structure"
-            ></v-img>
-          </v-col>
+          <v-card-text>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>
+                  <strong class="name-label">Name</strong>
+                  {{ patientInfo.name }}
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>
+                  <strong class="name-label">Patient ID</strong>
+                  {{ patientInfo.id }}
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>
+                  <strong class="name-label">Gender</strong>
+                  {{ patientInfo.gender }}
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>
+                  <strong class="name-label">DOB</strong>
+                  {{ patientInfo.dob }}
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>
+                  <strong class="name-label">Memo</strong>
+                  {{ patientInfo.memo }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
+
+<style scoped>
+.name-label {
+  color: rgb(var(--v-theme-primary)); /* 원하는 색상으로 변경 */
+  margin-right: 5px; /* 레이블과 값 사이의 간격 */
+}
+</style>
