@@ -1,7 +1,7 @@
 <template>
   <v-card class="d-flex flex-column fill-height">
     <v-file-input
-      label="Upload 3D Model (.obj)"
+      label="Upload 3D Model (.obj .stl)"
       prepend-icon=""
       prepend-inner-icon="mdi-file-upload"
       accept=".obj,.stl"
