@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card class="d-flex flex-column fill-height">
     <v-file-input
       label="Upload 3D Model (.obj)"
       prepend-icon=""
@@ -7,7 +7,8 @@
       accept=".obj,.stl"
       @change="updateCtImage"
     />
-    <div class="model-view-section">
+
+    <div class="model-view-section flex-grow-1">
       <div id="viewer" ref="viewer" class="viewer-container" />
     </div>
   </v-card>
@@ -175,12 +176,19 @@ function rgbToHex(rgbStr: string): number {
 .model-view-section {
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
 .viewer-container {
   width: 100%;
   height: 100%;
   position: relative;
-  overflow: hidden;
+}
+
+/* v-card가 flex container가 되도록 */
+:deep(.v-card) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 </style>
