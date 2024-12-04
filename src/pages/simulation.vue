@@ -4,10 +4,6 @@ import * as cornerstone from 'cornerstone-core'
 import * as cornerstoneTools from 'cornerstone-tools'
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
 import dicomParser from 'dicom-parser'
-import Hammer from 'hammerjs'
-
-// window에 Hammer 추가
-;(window as any).Hammer = Hammer
 
 definePage({
   meta: {
@@ -38,23 +34,17 @@ onMounted(() => {
     // Cornerstone 활성화
     cornerstone.enable(imageElement.value)
 
-    // Cornerstone Tools 초기화
+    // Cornerstone Tools 초기화 - Hammer 제거
     cornerstoneTools.external.cornerstone = cornerstone
-    cornerstoneTools.external.Hammer = window.Hammer
     cornerstoneTools.init({
       mouseEnabled: true,
-      touchEnabled: true,
+      touchEnabled: false, // 터치 기능 비활성화
     })
 
-    // 스택 스크롤 도구 등록 및 설정
-    cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool, {
-      configuration: {
-        loop: false,
-        allowSkipping: false,
-      },
-    })
+    // 스택 스크롤 도구만 등록
+    cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool)
 
-    // 도구 활성화
+    // 스크롤 도구만 활성화
     cornerstoneTools.setToolActive('StackScrollMouseWheel', {})
   }
 })
@@ -142,7 +132,6 @@ async function initializeCornerstoneViewer(
   imageIds: string[],
 ): Promise<void> {
   await displayImage(element, imageIds[0])
-  setupStackState(element, imageIds)
   setupCornerstoneTools(element)
   setupImageRenderedListener(element)
 }
@@ -193,6 +182,9 @@ onBeforeUnmount(() => {
 
 // 도구 설정 함수
 function setupCornerstoneTools(element: CornerstoneElement): void {
+  // 스택 스크롤 도구 등록
+  cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool)
+
   // 스택 상태 설정
   const stack = {
     currentImageIdIndex: 0,
@@ -204,21 +196,7 @@ function setupCornerstoneTools(element: CornerstoneElement): void {
   cornerstoneTools.addToolState(element, 'stack', stack)
 
   // 마우스 휠 스크롤 도구 활성화
-  cornerstoneTools.setToolActiveForElement(element, 'StackScrollMouseWheel', {})
-}
-
-// 스택 상태 설정 함수 추가
-function setupStackState(
-  element: CornerstoneElement,
-  imageIds: string[],
-): void {
-  const stack: StackState = {
-    currentImageIdIndex: 0,
-    imageIds,
-  }
-
-  cornerstoneTools.addStackStateManager(element, ['stack'])
-  cornerstoneTools.addToolState(element, 'stack', stack)
+  cornerstoneTools.setToolActive('StackScrollMouseWheel', {})
 }
 </script>
 
