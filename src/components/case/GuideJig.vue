@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 // 이미지 직접 import
 import guide1 from '@/assets/images/guide/guide1.png'
 import guide2 from '@/assets/images/guide/guide2.png'
