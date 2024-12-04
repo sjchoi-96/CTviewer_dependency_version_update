@@ -53,8 +53,13 @@ function setCanvasDimensions(canvas: HTMLCanvasElement): void {
 
 function drawLine(x1: number, y1: number, x2: number, y2: number): void {
   if (detectionCtx.value) {
+    // primary 색상 가져오기
+    const primaryColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--v-theme-primary')
+      .trim()
+
     detectionCtx.value.lineWidth = 5
-    detectionCtx.value.strokeStyle = '#6200EE'
+    detectionCtx.value.strokeStyle = `rgb(${primaryColor})`
     detectionCtx.value.beginPath()
     detectionCtx.value.moveTo(x1, y1)
     detectionCtx.value.lineTo(x2, y2)
@@ -177,7 +182,6 @@ canvas {
   background-position: center center;
   background-size: contain;
   background-repeat: no-repeat;
-  border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .panoramic-container {
