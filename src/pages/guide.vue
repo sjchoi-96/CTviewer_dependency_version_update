@@ -44,19 +44,8 @@ onMounted(() => {
     cornerstoneTools.external.Hammer = window.Hammer
     cornerstoneTools.init()
 
-    // 도구 초기화
-    const WwwcTool = cornerstoneTools.WwwcTool
-    const PanTool = cornerstoneTools.PanTool
-    const ZoomTool = cornerstoneTools.ZoomTool
-    const StackScrollTool = cornerstoneTools.StackScrollTool
-    const StackScrollMouseWheelTool = cornerstoneTools.StackScrollMouseWheelTool
-
-    // 도구 등록
-    cornerstoneTools.addTool(WwwcTool)
-    cornerstoneTools.addTool(PanTool)
-    cornerstoneTools.addTool(ZoomTool)
-    cornerstoneTools.addTool(StackScrollTool)
-    cornerstoneTools.addTool(StackScrollMouseWheelTool)
+    // 스택 스크롤 도구만 등록
+    cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool)
   }
 })
 
@@ -194,19 +183,7 @@ onBeforeUnmount(() => {
 
 // 도구 설정 함수
 function setupCornerstoneTools(element: CornerstoneElement): void {
-  // 도구 활성화
-  cornerstoneTools.setToolActiveForElement(element, 'Wwwc', {
-    mouseButtonMask: 1,
-  })
-  cornerstoneTools.setToolActiveForElement(element, 'Pan', {
-    mouseButtonMask: 2,
-  })
-  cornerstoneTools.setToolActiveForElement(element, 'Zoom', {
-    mouseButtonMask: 4,
-  })
-  cornerstoneTools.setToolActiveForElement(element, 'StackScroll', {
-    mouseButtonMask: 1,
-  })
+  // 마우스 휠 스크롤만 활성화
   cornerstoneTools.setToolActiveForElement(element, 'StackScrollMouseWheel', {})
 }
 
