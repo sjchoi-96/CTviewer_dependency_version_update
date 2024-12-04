@@ -24,9 +24,9 @@ const imageIds = ref<string[]>([])
 const totalImages = ref(0)
 
 onMounted(() => {
-  // dicom-parser 설정
-  cornerstoneWADOImageLoader.external.dicomParser = dicomParser
+  // Cornerstone 초기화
   cornerstoneWADOImageLoader.external.cornerstone = cornerstone
+  cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 
   // WADO 이미지 로더 설정
   cornerstoneWADOImageLoader.configure({
@@ -36,18 +36,27 @@ onMounted(() => {
   })
 
   if (imageElement.value) {
-    // Cornerstone 요소 활성화
+    // Cornerstone 활성화
     cornerstone.enable(imageElement.value)
 
     // Cornerstone Tools 초기화
     cornerstoneTools.external.cornerstone = cornerstone
     cornerstoneTools.external.Hammer = window.Hammer
-    cornerstoneTools.init({
-      mouseEnabled: true,
-      touchEnabled: true,
-      globalToolSyncEnabled: false,
-      showSVGCursors: true,
-    })
+    cornerstoneTools.init()
+
+    // 도구 초기화
+    const WwwcTool = cornerstoneTools.WwwcTool
+    const PanTool = cornerstoneTools.PanTool
+    const ZoomTool = cornerstoneTools.ZoomTool
+    const StackScrollTool = cornerstoneTools.StackScrollTool
+    const StackScrollMouseWheelTool = cornerstoneTools.StackScrollMouseWheelTool
+
+    // 도구 등록
+    cornerstoneTools.addTool(WwwcTool)
+    cornerstoneTools.addTool(PanTool)
+    cornerstoneTools.addTool(ZoomTool)
+    cornerstoneTools.addTool(StackScrollTool)
+    cornerstoneTools.addTool(StackScrollMouseWheelTool)
   }
 })
 
@@ -59,11 +68,6 @@ type CornerstoneElement = HTMLElement & {
 interface StackState {
   currentImageIdIndex: number
   imageIds: string[]
-}
-
-interface ToolOptions {
-  mouseButtonMask?: number
-  element?: HTMLElement
 }
 
 // 파일 읽기 함수
@@ -80,56 +84,18 @@ async function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
 // DICOM 파싱 및 프레임 처리 함수
 function parseDicomAndGetFrames(byteArray: Uint8Array, file: File): string[] {
   const dataSet = dicomParser.parseDicom(byteArray)
-  const numberOfFrames: number = parseInt(dataSet.string('x00280008') || '1')
-  const imageId: string =
-    cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
 
-  return Array.from(
-    { length: numberOfFrames },
-    (_, i: number): string => `${imageId}?frame=${i}`,
-  )
-}
+  // numberOfFrames 가져오는 방식 수정
+  const numberOfFrames = dataSet.intString('x00280008') || 1
+  const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
 
-// 도구 설정 함수
-function setupCornerstoneTools(element: CornerstoneElement): void {
-  const toolOptions: ToolOptions = { element }
-
-  // 도구 추가
-  cornerstoneTools.addTool(cornerstoneTools.WwwcTool, toolOptions)
-  cornerstoneTools.addTool(cornerstoneTools.PanTool, toolOptions)
-  cornerstoneTools.addTool(cornerstoneTools.ZoomTool, toolOptions)
-  cornerstoneTools.addTool(cornerstoneTools.StackScrollTool, toolOptions)
-  cornerstoneTools.addTool(
-    cornerstoneTools.StackScrollMouseWheelTool,
-    toolOptions,
-  )
-
-  // 도구 활성화
-  const toolConfigs: Record<string, ToolOptions> = {
-    Wwwc: { mouseButtonMask: 1 },
-    Pan: { mouseButtonMask: 2 },
-    Zoom: { mouseButtonMask: 4 },
-    StackScroll: { mouseButtonMask: 1 },
-    StackScrollMouseWheel: {},
+  // 프레임 ID 생성
+  const frameIds = []
+  for (let i = 0; i < numberOfFrames; i++) {
+    frameIds.push(imageId + (numberOfFrames > 1 ? `?frame=${i}` : ''))
   }
 
-  Object.entries(toolConfigs).forEach(([toolName, config]) => {
-    cornerstoneTools.setToolActiveForElement(element, toolName, config)
-  })
-}
-
-// 스택 상태 설정 함수
-function setupStackState(
-  element: CornerstoneElement,
-  imageIds: string[],
-): void {
-  const stack: StackState = {
-    currentImageIdIndex: 0,
-    imageIds,
-  }
-
-  cornerstoneTools.addStackStateManager(element, ['stack'])
-  cornerstoneTools.addToolState(element, 'stack', stack)
+  return frameIds
 }
 
 // 이미지 표시 함수
@@ -225,6 +191,38 @@ onBeforeUnmount(() => {
     cornerstone.disable(imageElement.value)
   }
 })
+
+// 도구 설정 함수
+function setupCornerstoneTools(element: CornerstoneElement): void {
+  // 도구 활성화
+  cornerstoneTools.setToolActiveForElement(element, 'Wwwc', {
+    mouseButtonMask: 1,
+  })
+  cornerstoneTools.setToolActiveForElement(element, 'Pan', {
+    mouseButtonMask: 2,
+  })
+  cornerstoneTools.setToolActiveForElement(element, 'Zoom', {
+    mouseButtonMask: 4,
+  })
+  cornerstoneTools.setToolActiveForElement(element, 'StackScroll', {
+    mouseButtonMask: 1,
+  })
+  cornerstoneTools.setToolActiveForElement(element, 'StackScrollMouseWheel', {})
+}
+
+// 스택 상태 설정 함수 추가
+function setupStackState(
+  element: CornerstoneElement,
+  imageIds: string[],
+): void {
+  const stack: StackState = {
+    currentImageIdIndex: 0,
+    imageIds,
+  }
+
+  cornerstoneTools.addStackStateManager(element, ['stack'])
+  cornerstoneTools.addToolState(element, 'stack', stack)
+}
 </script>
 
 <template>
@@ -238,7 +236,8 @@ onBeforeUnmount(() => {
               ref="fileInput"
               label="Upload DICOM file"
               accept=".dcm"
-              prepend-icon="mdi-file-upload"
+              prepend-icon=""
+              prepend-inner-icon="mdi-file-upload"
               class="mb-4"
               hide-details
               @change="handleFileSelect"
@@ -254,7 +253,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .cornerstone-element {
   width: 100%;
-  height: 100%;
-  background-color: black;
+  height: 512px;
+  background-color: var(--v-theme-surface);
 }
 </style>
