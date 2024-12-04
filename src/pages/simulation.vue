@@ -41,10 +41,21 @@ onMounted(() => {
     // Cornerstone Tools 초기화
     cornerstoneTools.external.cornerstone = cornerstone
     cornerstoneTools.external.Hammer = window.Hammer
-    cornerstoneTools.init()
+    cornerstoneTools.init({
+      mouseEnabled: true,
+      touchEnabled: true,
+    })
 
-    // 스택 스크롤 도구만 등록
-    cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool)
+    // 스택 스크롤 도구 등록 및 설정
+    cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool, {
+      configuration: {
+        loop: false,
+        allowSkipping: false,
+      },
+    })
+
+    // 도구 활성화
+    cornerstoneTools.setToolActive('StackScrollMouseWheel', {})
   }
 })
 
@@ -182,7 +193,17 @@ onBeforeUnmount(() => {
 
 // 도구 설정 함수
 function setupCornerstoneTools(element: CornerstoneElement): void {
-  // 마우스 휠 스크롤만 활성화
+  // 스택 상태 설정
+  const stack = {
+    currentImageIdIndex: 0,
+    imageIds: imageIds.value,
+  }
+
+  // 스택 상태 관리자 추가
+  cornerstoneTools.addStackStateManager(element, ['stack'])
+  cornerstoneTools.addToolState(element, 'stack', stack)
+
+  // 마우스 휠 스크롤 도구 활성화
   cornerstoneTools.setToolActiveForElement(element, 'StackScrollMouseWheel', {})
 }
 
