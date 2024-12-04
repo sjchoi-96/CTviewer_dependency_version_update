@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import panoramicImg from '@/assets/images/panoramic/panoramic.png'
+import axialImg from '@/assets/images/panoramic/axial.png'
+import orthogonalImg from '@/assets/images/panoramic/orthogonal.png'
+import tangentialImg from '@/assets/images/panoramic/tangential.png'
+
 definePage({
   meta: {
     icon: 'mdi-molecule',
@@ -6,107 +12,113 @@ definePage({
     drawerIndex: 3,
   },
 })
-const headers = [
-  {
-    title: 'Dessert (100g serving)',
-    key: 'name',
-  },
-  { title: 'Calories', key: 'calories' },
-  { title: 'Fat (g)', key: 'fat' },
-  { title: 'Carbs (g)', key: 'carbs' },
-  { title: 'Protein (g)', key: 'protein' },
-  { title: 'Iron (%)', key: 'iron' },
-]
-const desserts = ref([
-  {
-    name: 'Frozen Yogurt',
-    calories: 159,
-    fat: 6.0,
-    carbs: 24,
-    protein: 4.0,
-    iron: '1',
-  },
-  {
-    name: 'Jelly bean',
-    calories: 375,
-    fat: 0.0,
-    carbs: 94,
-    protein: 0.0,
-    iron: '0',
-  },
-  {
-    name: 'KitKat',
-    calories: 518,
-    fat: 26.0,
-    carbs: 65,
-    protein: 7,
-    iron: '6',
-  },
-  {
-    name: 'Eclair',
-    calories: 262,
-    fat: 16.0,
-    carbs: 23,
-    protein: 6.0,
-    iron: '7',
-  },
-  {
-    name: 'Gingerbread',
-    calories: 356,
-    fat: 16.0,
-    carbs: 49,
-    protein: 3.9,
-    iron: '16',
-  },
-  {
-    name: 'Ice cream sandwich',
-    calories: 237,
-    fat: 9.0,
-    carbs: 37,
-    protein: 4.3,
-    iron: '1',
-  },
-  {
-    name: 'Lollipop',
-    calories: 392,
-    fat: 0.2,
-    carbs: 98,
-    protein: 0,
-    iron: '2',
-  },
-  {
-    name: 'Cupcake',
-    calories: 305,
-    fat: 3.7,
-    carbs: 67,
-    protein: 4.3,
-    iron: '8',
-  },
-  {
-    name: 'Honeycomb',
-    calories: 408,
-    fat: 3.2,
-    carbs: 87,
-    protein: 6.5,
-    iron: '45',
-  },
-  {
-    name: 'Donut',
-    calories: 452,
-    fat: 25.0,
-    carbs: 51,
-    protein: 4.9,
-    iron: '22',
-  },
-  {
-    name: 'Donut2',
-    calories: 452,
-    fat: 25.0,
-    carbs: 51,
-    protein: 4.9,
-    iron: '22',
-  },
-])
+
+const detectionCanvas = ref<HTMLCanvasElement | null>(null)
+const detectionCtx = ref<CanvasRenderingContext2D | null>(null)
+const x = ref<number>(0)
+const y = ref<number>(0)
+const isDrawing = ref<boolean>(false)
+
+function initializeCanvas(): void {
+  if (detectionCanvas.value) {
+    console.log('Canvas context initialized')
+    detectionCtx.value = detectionCanvas.value.getContext('2d')
+
+    setCanvasDimensions(detectionCanvas.value)
+
+    if (detectionCtx.value) {
+      scaleCanvasForHighResolution(detectionCanvas.value, detectionCtx.value)
+    }
+  } else {
+    console.log('Canvas is still null after nextTick')
+  }
+}
+
+function scaleCanvasForHighResolution(
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+): void {
+  const dpr = window.devicePixelRatio || 1
+  canvas.width = canvas.clientWidth * dpr
+  canvas.height = canvas.clientHeight * dpr
+  ctx.scale(1, 1)
+}
+
+function setCanvasDimensions(canvas: HTMLCanvasElement): void {
+  const canvasWidth = canvas.clientWidth
+  const canvasHeight = canvas.clientHeight
+  canvas.width = canvasWidth
+  canvas.height = canvasHeight
+}
+
+function drawLine(x1: number, y1: number, x2: number, y2: number): void {
+  if (detectionCtx.value) {
+    detectionCtx.value.lineWidth = 5
+    detectionCtx.value.strokeStyle = '#6200EE'
+    detectionCtx.value.beginPath()
+    detectionCtx.value.moveTo(x1, y1)
+    detectionCtx.value.lineTo(x2, y2)
+    detectionCtx.value.closePath()
+    detectionCtx.value.stroke()
+  }
+}
+
+function getMousePosition(e: MouseEvent): { x: number; y: number } {
+  if (!detectionCanvas.value) {
+    throw new Error('Canvas is not initialized')
+  }
+  const rect = detectionCanvas.value.getBoundingClientRect()
+  const scaleX = detectionCanvas.value.width / rect.width
+  const scaleY = detectionCanvas.value.height / rect.height
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY,
+  }
+}
+
+function beginDrawing(e: MouseEvent): void {
+  const position = getMousePosition(e)
+  x.value = position.x
+  y.value = position.y
+  isDrawing.value = true
+}
+
+function keepDrawing(e: MouseEvent): void {
+  if (isDrawing.value) {
+    const position = getMousePosition(e)
+    drawLine(x.value, y.value, position.x, position.y)
+    x.value = position.x
+    y.value = position.y
+  }
+}
+
+function stopDrawing(): void {
+  isDrawing.value = false
+}
+
+// 리사이즈 핸들러
+function handleResize() {
+  if (detectionCanvas.value) {
+    setCanvasDimensions(detectionCanvas.value)
+    if (detectionCtx.value) {
+      scaleCanvasForHighResolution(detectionCanvas.value, detectionCtx.value)
+    }
+  }
+}
+
+// 컴포넌트가 마운트될 때 캔버스 초기화
+onMounted(() => {
+  nextTick(() => {
+    initializeCanvas()
+    // 리사이즈 이벤트 리스너 등록
+    window.addEventListener('resize', handleResize)
+  })
+})
+
+// 컴포넌트가 제거되기 전에 이벤트 리스너 제거
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <template>
@@ -114,13 +126,74 @@ const desserts = ref([
     <v-row>
       <v-col>
         <v-card>
-          <v-data-table
-            :headers="headers"
-            :items="desserts"
-            item-value="name"
-          />
+          <v-card-text>
+            <v-row>
+              <v-col cols="9">
+                <div class="detection-view">
+                  <canvas
+                    ref="detectionCanvas"
+                    @mousedown="beginDrawing"
+                    @mousemove="keepDrawing"
+                    @mouseup="stopDrawing"
+                    @mouseout="stopDrawing"
+                  />
+                </div>
+              </v-col>
+
+              <v-col class="panoramic-container" cols="3">
+                <div class="panoramic-view">
+                  <v-img :src="panoramicImg" width="100%" height="100%" />
+                </div>
+                <div class="panoramic-view">
+                  <v-img :src="axialImg" width="100%" height="100%" />
+                </div>
+                <div class="panoramic-view">
+                  <v-img :src="orthogonalImg" width="100%" height="100%" />
+                </div>
+                <div class="panoramic-view">
+                  <v-img :src="tangentialImg" width="100%" height="100%" />
+                </div>
+              </v-col>
+            </v-row>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
+<style scoped>
+.detection-view {
+  flex: 1;
+  display: flex;
+  border-radius: 5px;
+  height: 600px;
+}
+
+canvas {
+  cursor: crosshair;
+  width: 100%;
+  height: 100%;
+  background-image: url('@/assets/images/panoramic/detection.png');
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.panoramic-container {
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  gap: 10px;
+}
+
+.panoramic-view {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  border: solid 2px rgb(var(--v-theme-primary));
+  margin-bottom: 2rem;
+}
+</style>
