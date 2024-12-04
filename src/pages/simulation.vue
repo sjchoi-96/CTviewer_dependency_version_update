@@ -228,7 +228,7 @@ function setupStackState(
       <v-col cols="12">
         <v-card-title>CT Image Viewer</v-card-title>
         <v-card>
-          <v-card-text>
+          <v-card-text class="align-center">
             <v-file-input
               ref="fileInput"
               label="Upload DICOM file"
