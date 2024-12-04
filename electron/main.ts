@@ -10,8 +10,8 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 app.whenReady().then(() => {
   const win = new BrowserWindow({
     frame: false,
-    width: 1500,
-    height: 900,
+    width: 1920,
+    height: 1080,
     minHeight: 400,
     minWidth: 300,
     icon: join(__dirname, '../public/neofavicon.ico'),

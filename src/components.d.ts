@@ -15,13 +15,17 @@ declare module 'vue' {
     AppNotificationItem: typeof import('./components/layout/AppNotificationItem.vue')['default']
     AppSettings: typeof import('./components/layout/AppSettings.vue')['default']
     CaseList: typeof import('./components/patients/CaseList.vue')['default']
+    CaseSetting: typeof import('./components/case/CaseSetting.vue')['default']
     ChartBar: typeof import('./components/demo-charts/ChartBar.vue')['default']
     ChartLine: typeof import('./components/demo-charts/ChartLine.vue')['default']
     ChartPie: typeof import('./components/demo-charts/ChartPie.vue')['default']
     ChartRadar: typeof import('./components/demo-charts/ChartRadar.vue')['default']
+    GuideJig: typeof import('./components/case/GuideJig.vue')['default']
     NewPatient: typeof import('./components/patients/NewPatient.vue')['default']
+    PatientInfo: typeof import('./components/case/PatientInfo.vue')['default']
     PatientList: typeof import('./components/patients/PatientList.vue')['default']
     RouterWrapper: typeof import('./components/layout/RouterWrapper.vue')['default']
     StatsCard: typeof import('./components/StatsCard.vue')['default']
+    UploadCTFile: typeof import('./components/case/UploadCTFile.vue')['default']
   }
 }

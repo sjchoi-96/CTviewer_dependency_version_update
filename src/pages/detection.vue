@@ -110,7 +110,7 @@ const desserts = ref([
 </script>
 
 <template>
-  <v-container fluid>
+  <v-container>
     <v-row>
       <v-col>
         <v-card>
