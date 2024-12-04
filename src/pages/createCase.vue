@@ -65,6 +65,7 @@ import GuideJig from '@/components/case/GuideJig.vue'
 
 .fill-height {
   height: 100%;
+  justify-content: center;
 }
 
 .section-container {
