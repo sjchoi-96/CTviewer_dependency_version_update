@@ -19,6 +19,7 @@ definePage({
 
 const imageElement = ref<HTMLElement | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
+const currentImageIndex = ref(0)
 const imageIds = ref<string[]>([])
 const totalImages = ref(0)
 
@@ -50,76 +51,172 @@ onMounted(() => {
   }
 })
 
-// 파일 로드 핸들러
-async function handleFileSelect(event: Event) {
+// 파입 정의
+type CornerstoneElement = HTMLElement & {
+  addEventListener: (type: string, listener: (e: any) => void) => void
+}
+
+interface StackState {
+  currentImageIdIndex: number
+  imageIds: string[]
+}
+
+interface ToolOptions {
+  mouseButtonMask?: number
+  element?: HTMLElement
+}
+
+// 파일 읽기 함수
+async function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
+  return new Promise<ArrayBuffer>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e: ProgressEvent<FileReader>) =>
+      resolve(e.target?.result as ArrayBuffer)
+    reader.onerror = reject
+    reader.readAsArrayBuffer(file)
+  })
+}
+
+// DICOM 파싱 및 프레임 처리 함수
+function parseDicomAndGetFrames(byteArray: Uint8Array, file: File): string[] {
+  const dataSet = dicomParser.parseDicom(byteArray)
+  const numberOfFrames: number = parseInt(dataSet.string('x00280008') || '1')
+  const imageId: string =
+    cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
+
+  return Array.from(
+    { length: numberOfFrames },
+    (_, i: number): string => `${imageId}?frame=${i}`,
+  )
+}
+
+// 도구 설정 함수
+function setupCornerstoneTools(element: CornerstoneElement): void {
+  const toolOptions: ToolOptions = { element }
+
+  // 도구 추가
+  cornerstoneTools.addTool(cornerstoneTools.WwwcTool, toolOptions)
+  cornerstoneTools.addTool(cornerstoneTools.PanTool, toolOptions)
+  cornerstoneTools.addTool(cornerstoneTools.ZoomTool, toolOptions)
+  cornerstoneTools.addTool(cornerstoneTools.StackScrollTool, toolOptions)
+  cornerstoneTools.addTool(
+    cornerstoneTools.StackScrollMouseWheelTool,
+    toolOptions,
+  )
+
+  // 도구 활성화
+  const toolConfigs: Record<string, ToolOptions> = {
+    Wwwc: { mouseButtonMask: 1 },
+    Pan: { mouseButtonMask: 2 },
+    Zoom: { mouseButtonMask: 4 },
+    StackScroll: { mouseButtonMask: 1 },
+    StackScrollMouseWheel: {},
+  }
+
+  Object.entries(toolConfigs).forEach(([toolName, config]) => {
+    cornerstoneTools.setToolActiveForElement(element, toolName, config)
+  })
+}
+
+// 스택 상태 설정 함수
+function setupStackState(
+  element: CornerstoneElement,
+  imageIds: string[],
+): void {
+  const stack: StackState = {
+    currentImageIdIndex: 0,
+    imageIds,
+  }
+
+  cornerstoneTools.addStackStateManager(element, ['stack'])
+  cornerstoneTools.addToolState(element, 'stack', stack)
+}
+
+// 이미지 표시 함수
+async function displayImage(
+  element: CornerstoneElement,
+  imageId: string,
+): Promise<void> {
+  const image = await cornerstone.loadImage(imageId)
+  cornerstone.displayImage(element, image)
+}
+
+// 이벤트 리스너 설정 함수
+function setupImageRenderedListener(element: CornerstoneElement): void {
+  element.addEventListener('cornerstoneimagerendered', (e: any) => {
+    currentImageIndex.value = e.detail.image.imageIdIndex || 0
+  })
+}
+
+// 에러 처리를 위한 커스텀 에러 클래스
+class DicomError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'DicomError'
+  }
+}
+
+// DICOM 파일 유효성 검사 함수
+async function validateAndProcessDicomFile(
+  file: File,
+): Promise<{ byteArray: Uint8Array; imageIds: string[] }> {
+  const arrayBuffer = await readFileAsArrayBuffer(file)
+  const byteArray = new Uint8Array(arrayBuffer)
+  const imageIds = parseDicomAndGetFrames(byteArray, file)
+
+  if (!imageIds.length) {
+    throw new DicomError('No valid frames found in DICOM file')
+  }
+
+  return { byteArray, imageIds }
+}
+
+// Cornerstone 뷰어 초기화 함수
+async function initializeCornerstoneViewer(
+  element: CornerstoneElement,
+  imageIds: string[],
+): Promise<void> {
+  await displayImage(element, imageIds[0])
+  setupStackState(element, imageIds)
+  setupCornerstoneTools(element)
+  setupImageRenderedListener(element)
+}
+
+// 에러 처리 함수
+function handleError(error: unknown, errorType: 'read' | 'validation'): void {
+  console.error(
+    errorType === 'read' ? 'Error reading file:' : 'Invalid DICOM file:',
+    error,
+  )
+  alert(
+    errorType === 'read'
+      ? 'Error reading the DICOM file.'
+      : 'Please select a valid DICOM file.',
+  )
+}
+
+// 메인 파일 처리 함수
+async function handleFileSelect(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
   const files = input.files
 
-  if (files && files.length > 0 && imageElement.value) {
-    imageIds.value = [] // 이미지 ID 배열 초기화
-    const file = files[0] // 멀티프레임 DICOM은 하나의 파일만 처리
+  if (!files?.length || !imageElement.value) return
 
-    try {
-      const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = (e) => resolve(e.target?.result as ArrayBuffer)
-        reader.onerror = reject
-        reader.readAsArrayBuffer(file)
-      })
+  try {
+    const file = files[0]
+    const { imageIds: processedImageIds } =
+      await validateAndProcessDicomFile(file)
 
-      const byteArray = new Uint8Array(arrayBuffer)
+    // ref 값 업데이트
+    imageIds.value = processedImageIds
+    totalImages.value = processedImageIds.length
 
-      try {
-        // DICOM 파일 파싱
-        const dataSet = dicomParser.parseDicom(byteArray)
-
-        // 프레임 수 확인
-        const numberOfFrames = dataSet.intString('x00280008') || 1
-
-        // 각 프레임에 대한 imageId 생성
-        const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(file)
-        for (let i = 0; i < numberOfFrames; i++) {
-          imageIds.value.push(`${imageId}?frame=${i}`)
-        }
-
-        if (imageIds.value.length > 0) {
-          totalImages.value = imageIds.value.length
-          // 첫 번째 프레임 로드 및 표시
-          const image = await cornerstone.loadImage(imageIds.value[0])
-          cornerstone.displayImage(imageElement.value, image)
-
-          // 스택 상태 설정
-          const stack = {
-            currentImageIdIndex: 0,
-            imageIds: imageIds.value,
-          }
-
-          // 스택 도구 상태 설정
-          cornerstoneTools.addStackStateManager(imageElement.value, ['stack'])
-          cornerstoneTools.addToolState(imageElement.value, 'stack', stack)
-
-          // 기본 도구 활성화
-          cornerstoneTools.addTool(cornerstoneTools.WwwcTool)
-          cornerstoneTools.addTool(cornerstoneTools.PanTool)
-          cornerstoneTools.addTool(cornerstoneTools.ZoomTool)
-          cornerstoneTools.addTool(cornerstoneTools.StackScrollTool)
-          cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool)
-
-          // 도구 활성화
-          cornerstoneTools.setToolActive('Wwwc', { mouseButtonMask: 1 })
-          cornerstoneTools.setToolActive('Pan', { mouseButtonMask: 2 })
-          cornerstoneTools.setToolActive('Zoom', { mouseButtonMask: 4 })
-          cornerstoneTools.setToolActive('StackScroll', { mouseButtonMask: 1 })
-          cornerstoneTools.setToolActive('StackScrollMouseWheel', {})
-        }
-      } catch (error) {
-        console.error('Invalid DICOM file:', error)
-        alert('Please select a valid DICOM file.')
-      }
-    } catch (error) {
-      console.error('Error reading file:', error)
-      alert('Error reading the DICOM file.')
-    }
+    await initializeCornerstoneViewer(
+      imageElement.value as CornerstoneElement,
+      processedImageIds,
+    )
+  } catch (error) {
+    handleError(error, error instanceof DicomError ? 'validation' : 'read')
   }
 }
 
@@ -157,7 +254,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .cornerstone-element {
   width: 100%;
-  height: 600px;
+  height: 100%;
   background-color: black;
 }
 </style>

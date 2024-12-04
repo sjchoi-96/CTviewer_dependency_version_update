@@ -3,7 +3,7 @@ definePage({
   meta: {
     icon: 'mdi-clipboard-text',
     title: 'Planning',
-    drawerIndex: 4,
+    drawerIndex: 5,
   },
 })
 const stats = ref([
