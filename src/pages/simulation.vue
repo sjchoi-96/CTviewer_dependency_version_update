@@ -42,15 +42,20 @@ onMounted(() => {
 
     // 도구들을 전역적으로만 한번 추가
     cornerstoneTools.addTool(cornerstoneTools.PanTool)
-    cornerstoneTools.addTool(cornerstoneTools.ZoomTool)
+    cornerstoneTools.addTool(cornerstoneTools.ZoomTool, {
+      configuration: {
+        mouseButtonMask: 1, // 왼쪽 버튼
+        minScale: 0.25,
+        maxScale: 20.0,
+      },
+    })
     cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool)
 
-    // 도구들 활성화
     cornerstoneTools.setToolActiveForElement(imageElement.value, 'Pan', {
-      mouseButtonMask: 4,
+      mouseButtonMask: 2, // 가운데 버튼
     })
     cornerstoneTools.setToolActiveForElement(imageElement.value, 'Zoom', {
-      mouseButtonMask: 2,
+      mouseButtonMask: 1, // 왼쪽 버튼
     })
     cornerstoneTools.setToolActiveForElement(
       imageElement.value,
@@ -90,7 +95,7 @@ function parseDicomAndGetFrames(byteArray: Uint8Array, file: File): string[] {
   }
   return frameIds
 }
-// 이미지 표시 함수
+// 이미지 시 함수
 async function displayImage(
   element: CornerstoneElement,
   imageId: string,
@@ -175,10 +180,10 @@ onBeforeUnmount(() => {
 function setupCornerstoneTools(element: CornerstoneElement): void {
   // 도구들 다시 활성화
   cornerstoneTools.setToolActiveForElement(element, 'Pan', {
-    mouseButtonMask: 4,
+    mouseButtonMask: 2,
   })
   cornerstoneTools.setToolActiveForElement(element, 'Zoom', {
-    mouseButtonMask: 2,
+    mouseButtonMask: 1,
   })
   cornerstoneTools.setToolActiveForElement(element, 'StackScrollMouseWheel', {})
 }
