@@ -119,6 +119,14 @@ async function displayImage(
 ): Promise<void> {
   const image = await cornerstone.loadImage(imageId)
   cornerstone.displayImage(element, image)
+
+  // 이미지를 뷰어에 맞게 자동 조절
+  cornerstone.fitToWindow(element)
+
+  // 뷰포트 설정으로 이미지 크기 최적화
+  const viewport = cornerstone.getViewport(element)
+  viewport.scale = 1.0 // 기본 스케일 설정
+  cornerstone.setViewport(element, viewport)
 }
 
 function setupImageRenderedListener(element: CornerstoneElement): void {
@@ -153,7 +161,9 @@ onBeforeUnmount(() => {
 <style scoped>
 .cornerstone-element {
   width: 100%;
-  height: 512px;
+  height: 70vh;
   background-color: var(--v-theme-surface);
+  display: block;
+  margin: 0 auto;
 }
 </style>
