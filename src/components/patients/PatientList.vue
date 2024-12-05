@@ -31,14 +31,21 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
 import type { Patient } from '@/models/Patient'
+import { useRouter } from 'vue-router'
 
-const props = defineProps<{
+defineProps<{
   patientList: Patient[]
   createPatient: () => void
   getPatientWithCaseList: (patientId: number) => void
 }>()
+
+const router = useRouter()
+
+const handleCreateCase = (patientId: number) => {
+  const newCaseId = 1
+  router.push(`/create-case/${patientId}/${newCaseId}`)
+}
 </script>
 
 <style scoped>

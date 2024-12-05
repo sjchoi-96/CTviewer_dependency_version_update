@@ -1,8 +1,5 @@
 <template>
-  <v-img
-    src="@/assets/images/mouth-structure.png"
-    alt="Mouth Structure"
-  ></v-img>
+  <v-img src="@/assets/images/mouth-structure.png" alt="Mouth Structure" />
 </template>
 
 <script setup lang="ts"></script>

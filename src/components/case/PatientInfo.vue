@@ -4,31 +4,31 @@
       <v-list-item>
         <v-list-item-title>
           <strong class="name-label">Name</strong>
-          {{ patientInfo.name }}
+          {{ name }}
         </v-list-item-title>
       </v-list-item>
       <v-list-item>
         <v-list-item-title>
           <strong class="name-label">Patient ID</strong>
-          {{ patientInfo.id }}
+          {{ patientId }}
         </v-list-item-title>
       </v-list-item>
       <v-list-item>
         <v-list-item-title>
           <strong class="name-label">Gender</strong>
-          {{ patientInfo.gender }}
+          {{ gender }}
         </v-list-item-title>
       </v-list-item>
       <v-list-item>
         <v-list-item-title>
           <strong class="name-label">DOB</strong>
-          {{ patientInfo.dob }}
+          {{ dob }}
         </v-list-item-title>
       </v-list-item>
       <v-list-item>
         <v-list-item-title>
           <strong class="name-label memo-label">Memo</strong>
-          <div class="memo-text">{{ patientInfo.memo }}</div>
+          <div class="memo-text">{{ memo }}</div>
         </v-list-item-title>
       </v-list-item>
     </v-list>
@@ -36,19 +36,14 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { ref } from 'vue'
-
-const route = useRoute()
-const patientInfo = ref({
-  id: route.query.patientId || '',
-  name: route.query.patientName || '',
-  gender: route.query.patientGender || '',
-  dob: route.query.patientDob || '',
-  memo: route.query.patientMemo || '',
-})
+defineProps<{
+  patientId: number
+  name?: string
+  gender?: string
+  dob?: string
+  memo?: string
+}>()
 </script>
-
 <style scoped>
 .name-label {
   color: rgb(var(--v-theme-primary)); /* 원하는 색상으로 변경 */

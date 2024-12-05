@@ -25,7 +25,8 @@ definePage({
 function createCase(patientId: number): void {
   const selectedPatient = findPatientById(patientId)
   if (selectedPatient) {
-    sendPatientInfoToCreateCase(selectedPatient)
+    const newCaseId = 1
+    sendPatientInfoToCreateCase(selectedPatient, newCaseId)
   }
 }
 
@@ -61,16 +62,16 @@ function findPatientById(patientId: number): Patient | null {
   return selectedPatient
 }
 
-function sendPatientInfoToCreateCase(selectedPatient: Patient): void {
+function sendPatientInfoToCreateCase(
+  selectedPatient: Patient,
+  caseId: number,
+): void {
   if (selectedPatient) {
     router.push({
       path: '/createCase',
       query: {
         patientId: selectedPatient.id,
-        patientName: selectedPatient.name,
-        patientGender: selectedPatient.gender,
-        patientDob: selectedPatient.dob,
-        patientMemo: selectedPatient.memo,
+        caseId: caseId,
       },
     })
   } else {
@@ -81,7 +82,7 @@ function sendPatientInfoToCreateCase(selectedPatient: Patient): void {
 function getCaseDetail(caseId: number, patientId: number): void {
   const selectedPatient = findPatientById(patientId)
   if (selectedPatient) {
-    sendPatientInfoToCreateCase(selectedPatient)
+    sendPatientInfoToCreateCase(selectedPatient, caseId)
   }
 }
 function closeNewPatient() {

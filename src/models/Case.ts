@@ -12,6 +12,8 @@ interface Case {
   iosData: boolean
   faceScanData: boolean
   implant: Implant
+  selectedGuideSlot: number | null
+  selectedJigSlot: number | null
 }
 
 export type { Case }

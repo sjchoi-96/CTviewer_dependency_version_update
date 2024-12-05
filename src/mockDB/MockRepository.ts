@@ -1,9 +1,11 @@
 // src/services/MockServer.ts
 import type { Patient } from '@/models/Patient' // Patient 인터페이스 가져오기
 import type { Case } from '@/models/Case' // Case 인터페이스 가져오기
+import type { User } from '@/models/User'
 
 export class MockRepository {
   private patients: Patient[]
+  private users: User[]
 
   constructor() {
     // 초기 환자 데이터 설정
@@ -26,6 +28,8 @@ export class MockRepository {
             ctData: true,
             iosData: true,
             faceScanData: true,
+            selectedGuideSlot: null,
+            selectedJigSlot: null,
             implant: {
               id: 1,
               caseId: 1,
@@ -49,6 +53,8 @@ export class MockRepository {
             ctData: true,
             iosData: true,
             faceScanData: true,
+            selectedGuideSlot: null,
+            selectedJigSlot: null,
             implant: {
               id: 2,
               caseId: 2,
@@ -72,6 +78,8 @@ export class MockRepository {
             ctData: true,
             iosData: true,
             faceScanData: true,
+            selectedGuideSlot: null,
+            selectedJigSlot: null,
             implant: {
               id: 3,
               caseId: 3,
@@ -95,6 +103,8 @@ export class MockRepository {
             ctData: true,
             iosData: true,
             faceScanData: true,
+            selectedGuideSlot: null,
+            selectedJigSlot: null,
             implant: {
               id: 4,
               caseId: 4,
@@ -118,6 +128,13 @@ export class MockRepository {
         caseList: [],
       },
     ]
+    // 초기 유저 데이터 설정
+    this.users = [
+      {
+        userName: 'neo',
+        password: '0000',
+      },
+    ]
   }
 
   // 모든 환자 목록 가져오기
@@ -134,8 +151,8 @@ export class MockRepository {
   getPatientCaseList(patientId: number): Case[] | null {
     const patient = this.findPatient(patientId)
     if (patient) {
-      // caseList를 역순으로 정렬하여 반환
-      return patient.caseList.reverse()
+      // 원본 배열을 변경하지 않고 복사본을 반환
+      return [...patient.caseList].reverse()
     }
     return null
   }
@@ -143,6 +160,67 @@ export class MockRepository {
   // 특정 환자 가져오기
   getPatient(patientId: number): Patient | null {
     return this.findPatient(patientId) || null
+  }
+
+  // 유저 인증
+  authenticateUser(userName: string, password: string): boolean {
+    return this.users.some(
+      (u) => u.userName === userName && u.password === password,
+    )
+  }
+
+  // Case의 가이드 선택시
+  updateCaseGuideSlot(
+    patientId: number,
+    caseId: number,
+    slotNumber: number,
+  ): void {
+    const patient = this.findPatient(patientId)
+    if (!patient) {
+      console.log('Patient not found:', patientId)
+      return
+    }
+
+    const targetCase = patient.caseList.find((c) => c.id === caseId)
+    if (!targetCase) {
+      console.log('Case not found:', caseId)
+      return
+    }
+
+    targetCase.selectedGuideSlot = slotNumber
+    console.log('Updated case:', targetCase)
+    console.log('All cases for patient:', patient.caseList)
+  }
+
+  updateCaseJigSlot(
+    patientId: number,
+    caseId: number,
+    slotNumber: number,
+  ): void {
+    const patient = this.findPatient(patientId)
+    if (!patient) return
+
+    const targetCase = patient.caseList.find((c) => c.id === caseId)
+    if (!targetCase) return
+
+    targetCase.selectedJigSlot = slotNumber
+  }
+
+  // Case의 가이드/지그 슬롯 정보 조회
+  getCaseSlotInfo(
+    patientId: number,
+    caseId: number,
+  ): { guideSlot: number | null; jigSlot: number | null } | null {
+    const patient = this.findPatient(patientId)
+    if (!patient) return null
+
+    const targetCase = patient.caseList.find((c) => c.id === caseId)
+    if (!targetCase) return null
+
+    return {
+      guideSlot: targetCase.selectedGuideSlot,
+      jigSlot: targetCase.selectedJigSlot,
+    }
   }
 }
 // 단일 인스턴스 생성 및 export

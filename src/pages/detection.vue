@@ -12,7 +12,7 @@ definePage({
 </script>
 
 <template>
-  <v-container>
+  <v-container fluid>
     <v-row>
       <v-col>
         <v-card>

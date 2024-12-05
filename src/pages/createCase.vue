@@ -6,11 +6,27 @@ definePage({
     drawerIndex: 1,
   },
 })
-
+import { useRoute } from 'vue-router'
 import PatientInfo from '@/components/case/PatientInfo.vue'
 import CaseSetting from '@/components/case/CaseSetting.vue'
 import UploadCTFile from '@/components/case/UploadCTFile.vue'
 import GuideJig from '@/components/case/GuideJig.vue'
+import { mockRepository } from '@/mockDB/MockRepository'
+import type { Patient } from '@/models/Patient'
+
+const route = useRoute()
+const patientId = Number(route.query.patientId)
+const caseId = Number(route.query.caseId)
+
+// 선택된 환자 정보 가져오기
+const selectedPatient = ref<Patient | null>(null)
+
+onMounted(() => {
+  const patient = mockRepository.getPatient(patientId)
+  if (patient) {
+    selectedPatient.value = patient
+  }
+})
 </script>
 
 <template>
@@ -22,7 +38,13 @@ import GuideJig from '@/components/case/GuideJig.vue'
           <v-card-title>Patient Info</v-card-title>
           <v-card class="flex-card">
             <div class="patient-section">
-              <PatientInfo />
+              <PatientInfo
+                :patient-id="patientId"
+                :name="selectedPatient?.name"
+                :gender="selectedPatient?.gender"
+                :dob="selectedPatient?.dob"
+                :memo="selectedPatient?.memo"
+              />
             </div>
           </v-card>
         </div>
@@ -50,7 +72,7 @@ import GuideJig from '@/components/case/GuideJig.vue'
       <v-col cols="3" class="d-flex flex-column">
         <v-card-title>Guide & Jig</v-card-title>
         <v-card class="flex-card">
-          <GuideJig />
+          <GuideJig :patient-id="patientId" :case-id="caseId" />
         </v-card>
       </v-col>
     </v-row>
