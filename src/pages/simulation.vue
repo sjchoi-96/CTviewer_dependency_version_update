@@ -5,6 +5,7 @@ import * as cornerstoneTools from 'cornerstone-tools'
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
 import dicomParser from 'dicom-parser'
 import Hammer from 'hammerjs'
+import * as cornerstoneMath from 'cornerstone-math'
 
 definePage({
   meta: {
@@ -22,7 +23,12 @@ const totalImages = ref(0)
 onMounted(() => {
   // Cornerstone Tools의 external에 cornerstone 설정 (초기화 이전에)
   cornerstoneTools.external.cornerstone = cornerstone
-  cornerstoneTools.external.Hammer = Hammer // Hammer.js를 사용하는 경우 추가
+  cornerstoneTools.external.Hammer = Hammer
+  cornerstoneTools.external.cornerstoneMath = cornerstoneMath
+
+  // WADO 이미지 로더 설정
+  cornerstoneWADOImageLoader.external.cornerstone = cornerstone
+  cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 
   // Cornerstone Tools 초기화
   cornerstoneTools.init({
@@ -30,21 +36,27 @@ onMounted(() => {
     globalToolSyncEnabled: true,
   })
 
-  // Cornerstone 초기화
-  cornerstoneWADOImageLoader.external.cornerstone = cornerstone
-  cornerstoneWADOImageLoader.external.dicomParser = dicomParser
-
-  // WADO 이미지 로더 설정
-  cornerstoneWADOImageLoader.configure({
-    beforeSend: function (xhr: XMLHttpRequest) {
-      xhr.setRequestHeader('Access-Control-Allow-Origin', '*')
-    },
-  })
   if (imageElement.value) {
     // Cornerstone 활성화
     cornerstone.enable(imageElement.value)
-    // 스택 스크롤 도구만 등록
+
+    // 도구들을 전역적으로만 한번 추가
+    cornerstoneTools.addTool(cornerstoneTools.PanTool)
+    cornerstoneTools.addTool(cornerstoneTools.ZoomTool)
     cornerstoneTools.addTool(cornerstoneTools.StackScrollMouseWheelTool)
+
+    // 도구들 활성화
+    cornerstoneTools.setToolActiveForElement(imageElement.value, 'Pan', {
+      mouseButtonMask: 4,
+    })
+    cornerstoneTools.setToolActiveForElement(imageElement.value, 'Zoom', {
+      mouseButtonMask: 2,
+    })
+    cornerstoneTools.setToolActiveForElement(
+      imageElement.value,
+      'StackScrollMouseWheel',
+      {},
+    )
   }
 })
 // 파입 정의
@@ -119,8 +131,8 @@ async function initializeCornerstoneViewer(
   // Ensure the element is enabled
   await displayImage(element, imageIds[0])
   setupStackState(element, imageIds)
-  setupCornerstoneTools(element)
   setupImageRenderedListener(element)
+  setupCornerstoneTools(element)
 }
 // 에러 처리 함수
 function handleError(error: unknown, errorType: 'read' | 'validation'): void {
@@ -161,13 +173,16 @@ onBeforeUnmount(() => {
 })
 // 도구 설정 함수
 function setupCornerstoneTools(element: CornerstoneElement): void {
-  // 마우스 휠 스크롤만 활성화
-  cornerstoneTools.addToolForElement(
-    element,
-    cornerstoneTools.StackScrollMouseWheelTool,
-  )
+  // 도구들 다시 활성화
+  cornerstoneTools.setToolActiveForElement(element, 'Pan', {
+    mouseButtonMask: 4,
+  })
+  cornerstoneTools.setToolActiveForElement(element, 'Zoom', {
+    mouseButtonMask: 2,
+  })
   cornerstoneTools.setToolActiveForElement(element, 'StackScrollMouseWheel', {})
 }
+
 // 스택 상태 설정 함수 추가
 function setupStackState(
   element: CornerstoneElement,
