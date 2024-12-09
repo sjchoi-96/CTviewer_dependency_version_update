@@ -26,6 +26,7 @@ declare module 'vue' {
     PatientInfo: typeof import('./components/case/PatientInfo.vue')['default']
     PatientList: typeof import('./components/patients/PatientList.vue')['default']
     RouterWrapper: typeof import('./components/layout/RouterWrapper.vue')['default']
+    SinglePlaneViewer: typeof import('./components/CT_Viewer/SinglePlaneViewer.vue')['default']
     StatsCard: typeof import('./components/StatsCard.vue')['default']
     UploadCTFile: typeof import('./components/case/UploadCTFile.vue')['default']
   }
